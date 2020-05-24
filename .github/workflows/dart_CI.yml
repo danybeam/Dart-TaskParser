@@ -21,7 +21,10 @@ jobs:
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
       - name: update coverage badge
-        uses: mikeal/publish-to-github-action@master
+        uses: actions-x/commit@v1
+          with:
+            name: Github Action
+            email: git@hub.com
     strategy:
       matrix:
         os:
