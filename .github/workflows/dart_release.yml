@@ -1,11 +1,13 @@
 jobs:
   tag_release:
+    container:
+      image: google/dart:latest
     runs-on: ubuntu-latest
     steps:
       - name: checkout latest
         uses: actions/checkout@v2
       - name: Generate documentation
-        run: pub global activate dartdoc && dartdoc
+        run: dartdoc
       - name: Push documentation
         uses: mikeal/publish-to-github-action@master
       - name: tag release
