@@ -20,12 +20,7 @@ jobs:
         run: pub get
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
-      - name: update coverage badge
-        uses: actions-x/commit@v1
-        with:
-          name: Github Action
-          email: git@hub.com
-    strategy:
+      strategy:
       matrix:
         os:
           - ubuntu-latest
