@@ -1,5 +1,7 @@
 jobs:
   test:
+  env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
       image: google/dart:latest
     env:
