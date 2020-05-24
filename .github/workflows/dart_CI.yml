@@ -34,5 +34,4 @@ name: Dart CI
       - develop
   push:
     branches:
-      - master
       - release/*
