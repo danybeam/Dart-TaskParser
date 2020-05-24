@@ -1,5 +1,5 @@
 jobs:
-  tag_release:
+  Generate_release:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     container:
@@ -8,18 +8,23 @@ jobs:
     steps:
       - name: checkout latest
         uses: actions/checkout@v2
+      - name: Get dependencies
+        run: pub get
       - name: Generate documentation
         run: dartdoc
-      - name: Push documentation
-        uses: mikeal/publish-to-github-action@master
+      - name: run tests and generate coverage data and badge
+        run: pub run test_coverage
+      - name: update docs and coverage
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
       - name: tag release
         id: tag_release
         uses: butlerlogic/action-autotag@stable
         with:
           root: ./pubspec.yaml
           regex_pattern: ((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)
-      - name: test workflow
-        run: echo "${{ steps.tag_release.outputs.tagname }} foo"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

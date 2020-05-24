@@ -1,5 +1,5 @@
 jobs:
-  test:
+  Quick_change_test:
     container:
       image: google/dart:latest
     env:
@@ -12,6 +12,11 @@ jobs:
         run: pub get
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
+      - name: update coverage
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
     strategy:
       matrix:
         os:
@@ -23,5 +28,6 @@ name: Dart Test run
       - hotfix/*
       - bugfix/*
       - feature/*/test
+      - develop
     tags-ignore:
       - no-test
