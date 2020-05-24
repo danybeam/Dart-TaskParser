@@ -18,9 +18,10 @@ jobs:
         with:
           root: ./pubspec.yaml
           regex_pattern: ^((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$
+      - name: test workflow
+        run: echo "${{ steps.tag_release.outputs.tagname }} foo"
       - name: Create Release
         id: create_release
-        needs: tag_release.outputs.tagname
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.tag_release.outputs.tagname }}
