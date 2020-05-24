@@ -2,22 +2,22 @@ jobs:
   tag_release:
     runs-on: ubuntu-latest
     steps:
-    - name: checkout latest
-      uses: actions/checkout@v2
-    - name: Generate documentation
-      run: dartdoc
-    - name: Push documentation
-      uses: mikeal/publish-to-github-action@master
-    - name: tag release
-      uses: butlerlogic/action-autotag@stable
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        regex_pattern: ^((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$
-        root: ./pubspec.yaml
+      - name: checkout latest
+        uses: actions/checkout@v2
+      - name: Generate documentation
+        run: pub global activate dartdoc && dartdoc
+      - name: Push documentation
+        uses: mikeal/publish-to-github-action@master
+      - name: tag release
+        uses: butlerlogic/action-autotag@stable
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          regex_pattern: ^((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$
+          root: ./pubspec.yaml
 name: Generate release
-'on':
+"on":
   push:
     branches:
-    - master
+      - master
     tags-ignore:
-    - '**'
+      - "**"
