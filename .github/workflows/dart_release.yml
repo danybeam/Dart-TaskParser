@@ -13,6 +13,7 @@ jobs:
       - name: Push documentation
         uses: mikeal/publish-to-github-action@master
       - name: tag release
+        id: tag_release
         uses: butlerlogic/action-autotag@stable
         with:
           root: ./pubspec.yaml
