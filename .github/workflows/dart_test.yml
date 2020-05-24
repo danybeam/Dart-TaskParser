@@ -1,0 +1,25 @@
+jobs:
+  test:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install dependencies
+      run: pub get
+    - name: run tests and generate coverage data and badge
+      run: pub run test_coverage
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+name: Dart Test run
+'on':
+  push:
+    branches:
+    - hotfix/*
+    - bugfix/*
+    - feature/*/test
+    tags-ignore:
+    - no-test
