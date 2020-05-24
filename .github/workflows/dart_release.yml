@@ -19,6 +19,7 @@ jobs:
         with:
           name: Github Action
           email: git@hub.com
+          branch: develop
       - name: tag release
         id: tag_release
         uses: butlerlogic/action-autotag@stable
