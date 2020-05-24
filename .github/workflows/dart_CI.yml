@@ -21,9 +21,9 @@ jobs:
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
       strategy:
-      matrix:
-        os:
-          - ubuntu-latest
+        matrix:
+         os:
+           - ubuntu-latest
 name: Dart CI
 "on":
   pull_request:
