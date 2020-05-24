@@ -9,12 +9,14 @@ jobs:
       image: google/dart:latest
     runs-on: ubuntu-latest
     steps:
-      - name: checkout latest
-        uses: actions/checkout@v2
       - name: checkout develop
         uses: actions/checkout@v2
         with:
           ref: develop
+      - name: checkout latest
+        uses: actions/checkout@v2
+        with:
+          ref: master
       - name: Get dependencies
         run: pub get
       - name: Generate documentation
