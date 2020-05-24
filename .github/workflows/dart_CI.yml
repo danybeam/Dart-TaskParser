@@ -20,8 +20,6 @@ jobs:
         run: pub get
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
-      - name: update coverage badge
-        uses: mikeal/publish-to-github-action@master
     strategy:
       matrix:
         os:
@@ -34,5 +32,4 @@ name: Dart CI
       - develop
   push:
     branches:
-      - master
       - release/*
