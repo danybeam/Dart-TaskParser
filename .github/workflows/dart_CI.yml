@@ -6,33 +6,33 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    - id: changed
-      name: Verify Version got bumped in README badge and pubspec
-      uses: foodee/pr-includes-file-change@master
-      with:
-        paths: ^pubspec.yaml ^README.md
-    - if: steps.changed.outputs.matched != 'true'
-      name: Abort if not match
-      run: exit 1
-    - name: Get dependencies
-      run: pub get
-    - name: run tests and generate coverage data and badge
-      run: pub run test_coverage
-    - name: update coverage badge
-      uses: mikeal/publish-to-github-action@master
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - id: changed
+        name: Verify Version got bumped in README badge and pubspec
+        uses: foodee/pr-includes-file-change@master
+        with:
+          paths: ^pubspec.yaml ^README.md
+      - if: ${{github.event_name != 'push' && steps.changed.outputs.matched != 'true'}}
+        name: Abort if not match
+        run: exit 1
+      - name: Get dependencies
+        run: pub get
+      - name: run tests and generate coverage data and badge
+        run: pub run test_coverage
+      - name: update coverage badge
+        uses: mikeal/publish-to-github-action@master
     strategy:
       matrix:
         os:
-        - ubuntu-latest
+          - ubuntu-latest
 name: Dart CI
-'on':
+"on":
   pull_request:
     branches:
-    - master
-    - develop
+      - master
+      - develop
   push:
     branches:
-    - master
-    - release/*
+      - master
+      - release/*
