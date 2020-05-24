@@ -1,5 +1,5 @@
 jobs:
-  test:
+  Validate change:
     container:
       image: google/dart:latest
     env:
@@ -20,8 +20,12 @@ jobs:
         run: pub get
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
-      - name: update coverage badge
-        uses: mikeal/publish-to-github-action@master
+      - if: ${{github.event_name == push}}
+        name: Update coverage badge
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
     strategy:
       matrix:
         os:
@@ -34,5 +38,5 @@ name: Dart CI
       - develop
   push:
     branches:
-      - master
+      - develop
       - release/*
