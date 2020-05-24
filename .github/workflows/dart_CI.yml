@@ -22,9 +22,9 @@ jobs:
         run: pub run test_coverage
       - name: update coverage badge
         uses: actions-x/commit@v1
-          with:
-            name: Github Action
-            email: git@hub.com
+        with:
+          name: Github Action
+          email: git@hub.com
     strategy:
       matrix:
         os:
