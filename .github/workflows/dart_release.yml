@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: checkout latest
         uses: actions/checkout@v2
+      - name: checkout develop
+        uses: actions/checkout@v2
+        with:
+          ref: develop
       - name: Get dependencies
         run: pub get
       - name: Generate documentation
