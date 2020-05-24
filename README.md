@@ -1,6 +1,6 @@
 # Dart Task parser
 
-![License GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue) ![Version 0.0.0](https://img.shields.io/badge/Version-0.0.0-important) ![Dart CI]() ![Coverage]()
+![License GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue) ![Version 0.0.0](https://img.shields.io/badge/Version-0.0.1-important) ![Dart Test run](https://github.com/danybeam/Dart-TaskParser/workflows/Dart%20Test%20run/badge.svg?branch=develop) ![Coverage](https://raw.githubusercontent.com/danybeam/Dart-TaskParser/develop/coverage_badge.svg?sanitize=true)
 
 ## Description
 
