@@ -2,6 +2,9 @@ jobs:
   Generate_release:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ACTION_MAIL: danybeam@gmail.com
+      ACTION_NAME: Automated action
+      ACTION_BRANCH: develop
     container:
       image: google/dart:latest
     runs-on: ubuntu-latest
@@ -15,11 +18,7 @@ jobs:
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
       - name: update docs and coverage
-        uses: actions-x/commit@v1
-        with:
-          name: Github Action
-          email: git@hub.com
-          branch: develop
+        uses: ludeeus/action-push@0.0.1
       - name: tag release
         id: tag_release
         uses: butlerlogic/action-autotag@stable
