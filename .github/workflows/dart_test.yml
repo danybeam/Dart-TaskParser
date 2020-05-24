@@ -28,6 +28,6 @@ name: Dart Test run
       - hotfix/*
       - bugfix/*
       - feature/*/test
-      - develop
+      - develo
     tags-ignore:
       - no-test
