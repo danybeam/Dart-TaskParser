@@ -7,6 +7,8 @@ Do not delete anything you didn't write
 
 ## Next release
 
+* createcodeowner file
+
 ## Release 0.0.0
 
 * initialize project

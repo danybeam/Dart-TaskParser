@@ -1,6 +1,6 @@
 # Dart Task parser
 
-![License GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue) ![Version 0.0.0](https://img.shields.io/badge/Version-0.0.0-important) ![Dart CI]() ![Coverage]()
+![License GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue) ![Version 0.0.0](https://img.shields.io/badge/Version-0.0.1-important) ![Dart CI]() ![Coverage]()
 
 ## Description
 
