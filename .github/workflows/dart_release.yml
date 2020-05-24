@@ -23,7 +23,7 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.tag release.outputs.tagname }}
-          release_name: Release ${{ steps.tag release.outputs.tagname }}
+          release_name: Release ${{ steps.tag_release.outputs.tagname }}
           draft: false
           prerelease: false
 
