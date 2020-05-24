@@ -15,11 +15,9 @@ jobs:
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
       - name: update docs and coverage
-        uses: actions-x/commit@v1
+        uses: ludeeus/action-push@0.0.1
         with:
-          name: Github Action
-          email: git@hub.com
-          branch: origin/develop
+          ACTION_BRANCH: develop
       - name: tag release
         id: tag_release
         uses: butlerlogic/action-autotag@stable
