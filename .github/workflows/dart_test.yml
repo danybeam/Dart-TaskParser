@@ -1,5 +1,5 @@
 jobs:
-  Quick change test:
+  Quick_change_test:
     container:
       image: google/dart:latest
     env:

@@ -20,7 +20,7 @@ jobs:
         run: pub get
       - name: run tests and generate coverage data and badge
         run: pub run test_coverage
-      - if: ${{github.event_name == push}}
+      - if: ${{github.event_name == 'push'}}
         name: Update coverage badge
         uses: actions-x/commit@v1
         with:
