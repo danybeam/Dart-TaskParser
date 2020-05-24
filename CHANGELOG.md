@@ -7,5 +7,7 @@ Do not delete anything you didn't write
 
 ## Next release
 
+## Release 0.0.0
+
 * initialize project
 * added git ignore
