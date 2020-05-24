@@ -1,5 +1,5 @@
 jobs:
-  Validate change:
+  Validate_change:
     container:
       image: google/dart:latest
     env:
