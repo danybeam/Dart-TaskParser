@@ -23,6 +23,8 @@ jobs:
         run: pub run test_coverage
       - name: update docs and coverage
         uses: ludeeus/action-push@0.0.1
+      - name: Push new docs
+        run: push origin develop:develop
       - name: tag release
         id: tag_release
         uses: butlerlogic/action-autotag@stable
