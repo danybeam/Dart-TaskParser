@@ -2,7 +2,7 @@ jobs:
   Generate_release:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      ACTION_BRANCH: develop:develop
+      ACTION_BRANCH: HEAD:develop
       ACTION_MAIL: danybeam@gmail.com
       ACTION_NAME: Automated Action
     container:
