@@ -2,15 +2,19 @@ jobs:
   Generate_release:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ACTION_BRANCH: HEAD:develop
       ACTION_MAIL: danybeam@gmail.com
-      ACTION_NAME: Automated action
-      ACTION_BRANCH: develop
+      ACTION_NAME: Automated Action
     container:
       image: google/dart:latest
     runs-on: ubuntu-latest
     steps:
       - name: checkout latest
         uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: fetch develop
+        run: git pull origin develop:develop
       - name: Get dependencies
         run: pub get
       - name: Generate documentation
