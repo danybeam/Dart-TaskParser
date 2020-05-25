@@ -4,6 +4,7 @@ jobs:
       image: google/dart:latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BRANCH_NAME: foo
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -40,8 +41,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - uses: nelonoel/branch-name@v1
-      - if: ${{github.ref != 'develop'}}
-        run: exit 0
+      - if: ${{BRANCH_NAME != 'develop'}}
+        run: exit 1
       - name: Generate docs
         run: dartdoc
       - name: Update coverage badge
