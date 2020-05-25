@@ -4,7 +4,6 @@ jobs:
       image: google/dart:latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      BRANCH_NAME: foo
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -32,6 +31,8 @@ jobs:
         os:
           - ubuntu-latest
   Update_docs:
+    env:
+      BRANCH_NAME: foo
     needs: Validate_change
     runs-on:
       - ubuntu-latest
