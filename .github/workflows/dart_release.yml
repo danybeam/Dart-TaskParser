@@ -14,7 +14,7 @@ jobs:
         with:
           ref: master
       - name: fetch develop
-        run: git fetch origin develop:develop
+        run: git pull origin develop:develop
       - name: Get dependencies
         run: pub get
       - name: Generate documentation
