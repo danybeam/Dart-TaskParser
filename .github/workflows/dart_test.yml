@@ -1,0 +1,33 @@
+jobs:
+  Quick_change_test:
+    container:
+      image: google/dart:latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pub get
+      - name: run tests and generate coverage data and badge
+        run: pub run test_coverage
+      - name: update coverage
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+name: Dart Test run
+"on":
+  push:
+    branches:
+      - hotfix/*
+      - bugfix/*
+      - feature/*/test
+      - develop
+    tags-ignore:
+      - no-test

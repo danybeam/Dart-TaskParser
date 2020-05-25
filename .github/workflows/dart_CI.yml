@@ -1,0 +1,63 @@
+jobs:
+  Validate_change:
+    container:
+      image: google/dart:latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - id: changed
+        name: Verify Version got bumped in README badge and pubspec
+        uses: foodee/pr-includes-file-change@master
+        with:
+          paths: ^pubspec.yaml ^README.md
+      - if: ${{github.event_name != 'push' && steps.changed.outputs.matched != 'true'}}
+        name: Abort if not match
+        run: exit 1
+      - name: Get dependencies
+        run: pub get
+      - name: run tests and generate coverage data and badge
+        run: pub run test_coverage
+      - if: ${{github.event_name == 'push'}}
+        name: Update coverage badge
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+  Update_docs:
+    env:
+      BRANCH_NAME: foo
+    needs: Validate_change
+    runs-on:
+      - ubuntu-latest
+    container:
+      image: google/dart:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - uses: nelonoel/branch-name@v1
+      - if: ${{env.BRANCH_NAME == 'develop'}}
+        name: Generate docs
+        run: dartdoc
+      - if: ${{env.BRANCH_NAME == 'develop'}}
+        name: Update coverage badge
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
+name: Dart CI
+"on":
+  pull_request:
+    branches:
+      - master
+      - develop
+  push:
+    branches:
+      - develop
+      - release/*

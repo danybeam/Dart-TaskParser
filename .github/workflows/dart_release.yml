@@ -1,0 +1,34 @@
+jobs:
+  Generate_release:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    container:
+      image: google/dart:latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout latest
+        uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: tag release
+        id: tag_release
+        uses: butlerlogic/action-autotag@stable
+        with:
+          root: ./pubspec.yaml
+          regex_pattern: ((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.tag_release.outputs.tagname }}
+          release_name: Release ${{ steps.tag_release.outputs.tagname }}
+          draft: false
+          prerelease: false
+
+name: Generate release
+"on":
+  push:
+    branches:
+      - master
+    tags-ignore:
+      - "**"
