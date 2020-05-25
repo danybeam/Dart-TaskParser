@@ -30,6 +30,27 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+  Update_docs:
+    env:
+      BRANCH_NAME: foo
+    needs: Validate_change
+    runs-on:
+      - ubuntu-latest
+    container:
+      image: google/dart:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - uses: nelonoel/branch-name@v1
+      - if: ${{env.BRANCH_NAME != 'develop'}}
+        run: exit 1
+      - name: Generate docs
+        run: dartdoc
+      - name: Update coverage badge
+        uses: actions-x/commit@v1
+        with:
+          name: Github Action
+          email: git@hub.com
 name: Dart CI
 "on":
   pull_request:
