@@ -40,7 +40,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - uses: nelonoel/branch-name@v1
-      - if: ${{BRANCH_NAME != 'develop'}}
+      - if: ${BRANCH_NAME != 'develop'}
         run: exit 0
       - name: Generate docs
         run: dartdoc
