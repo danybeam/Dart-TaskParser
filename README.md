@@ -4,16 +4,17 @@
 
 ## Description
 
-<#DESCRIPTION#>
+Dart implementation of the task specification document, [found here](https://github.com/danybeam/ToDo-spec)  
+for now this implementation only manages strings and data structures but future releases will hopefully will also manages full files.
 
 ## License & Attribution
 
 This project is available under GNU General Public License version 3.  
 the GNU General Public License version 3 means Use it comercially, distributing and modifying for both personal and patent use
-  If you use this code you have to:
-  Make the source code available.
-  Copy the copiright and license notice.
-  Document your changes and release them under the same license. [Check it out](LICENSE) for more details
+If you use this code you have to:
+Make the source code available.
+Copy the copiright and license notice.
+Document your changes and release them under the same license. [Check it out](LICENSE) for more details
 
 If you like this project feel free to give a shoutout on twitter [@danybeam](https://twitter.com/danybeam)
 
