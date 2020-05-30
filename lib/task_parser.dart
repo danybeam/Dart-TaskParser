@@ -18,6 +18,8 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:tuple/tuple.dart';
+
 class Property {
   String label;
   String value;
@@ -30,7 +32,10 @@ class Property {
   int get hashCode => label.hashCode ^ value.hashCode;
 }
 
+enum states { dash, box, checked_box }
+
 class Task {
+  states state;
   String title;
   Property description;
   DateTime dueDate;
@@ -49,7 +54,7 @@ class Task {
     return other.hashCode == this.hashCode;
   }
 
-  int gethashcode() {
+  int _gethashcode() {
     int hash = this.title.hashCode;
     hash ^= this.description.hashCode;
     hash ^= this.dueDate.hashCode;
@@ -63,12 +68,9 @@ class Task {
   }
 
   @override
-  int get hashCode => gethashcode();
+  int get hashCode => _gethashcode();
 }
 
-void main(List<String> args) {
-  print("object");
+Tuple3<states, String, String> parseTitle(String task) {
+  throw UnimplementedError;
 }
-
-/// test for documentation
-void foo() {}
