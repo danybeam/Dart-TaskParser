@@ -1,5 +1,5 @@
 name: task_parser
-version: 0.0.5
+version: 0.0.0
 
 description: A library to parse tasks according to https://github.com/danybeam/ToDo-spec
 homepage: https://github.com/danybeam/Dart-TaskParser
@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   petitparser: ^3.0.2
+  tuple: ^1.0.3
 
 dev_dependencies:
   test: ^1.14.3
