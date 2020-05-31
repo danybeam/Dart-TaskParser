@@ -24,6 +24,11 @@ class Property {
   String label;
   String value;
 
+  Property(label, value) {
+    this.label = label;
+    this.value = value;
+  }
+
   bool operator ==(covariant other) {
     return other.hashCode == this.hashCode;
   }
@@ -42,7 +47,8 @@ class Task {
   List<Property> properties;
   List<String> switches;
 
-  Task(title, {description, dueDate, properties, switches}) {
+  Task(state, title, {description, dueDate, properties, switches}) {
+    this.state = state;
     this.title = title;
     this.description = description;
     this.dueDate = dueDate;
@@ -72,5 +78,50 @@ class Task {
 }
 
 Tuple3<states, String, String> parseTitle(String task) {
-  throw UnimplementedError;
+  throw UnimplementedError();
+}
+
+Tuple2<DateTime, String> parseDueDate(String task) {
+  throw UnimplementedError();
+}
+
+Tuple2<List<String>, String> parseSwitches(String task) {
+  throw UnimplementedError();
+}
+
+Tuple2<List<String>, String> parseProperties(String task) {
+  throw UnimplementedError();
+}
+
+Task parseTask(String task) {
+  Tuple2<dynamic, String> result;
+
+  states state;
+  String title;
+  Property description;
+  DateTime dueDate;
+  List<Property> properties;
+  List<String> switches;
+
+  Tuple3 titleParse = parseTitle(task);
+  state = titleParse.item1;
+  title = titleParse.item2;
+
+  result = parseDueDate(titleParse.item3);
+  dueDate = result.item1;
+
+  result = parseProperties(result.item2);
+  var descIndex =
+      result.item1.indexWhere((e) => e.label.toLowerCase() == "description");
+  description = descIndex != -1 ? result.item1.removeAt(descIndex) : null;
+  properties = result.item1;
+
+  result = parseSwitches(result.item2);
+  switches = result.item1;
+
+  return new Task(state, title,
+      description: description,
+      dueDate: dueDate,
+      properties: properties,
+      switches: switches);
 }
