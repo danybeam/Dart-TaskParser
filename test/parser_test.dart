@@ -37,6 +37,10 @@ void main() {
       expect(() => parser.parseTask("-foo:bar"), throwsFormatException);
     });
 
+    test('Raise error if there are 2 titles', () {
+      expect(() => parser.parseTask("-foo -bar"), throwsFormatException);
+    });
+
     test('badly formated due date label act as property', () {
       parser.Task expected = parser.Task(parser.states.dash, "foo",
           properties: [parser.Property("dueate", "2020-12-31T12:34")]);

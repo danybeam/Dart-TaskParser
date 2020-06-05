@@ -25,71 +25,54 @@ import 'package:tuple/tuple.dart';
 void main() {
   group('Title positive tests => ', () {
     test('parse title only with dash', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo", "");
-      expect(parser.parseTitle("-foo"), expected);
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.dash, "foo");
+      expect(parser.parseTitle("-", "foo"), expected);
     });
 
     test('parse title with space', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo bar", "");
-      expect(parser.parseTitle("-foo bar"), expected);
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.dash, "foo bar");
+      expect(parser.parseTitle("-", "foo bar"), expected);
     });
 
     test('parse title only with box', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.box, "foo", "");
-      expect(parser.parseTitle("[ ]foo"), expected);
+      Tuple2<parser.states, String> expected = Tuple2(parser.states.box, "foo");
+      expect(parser.parseTitle("[ ]", "foo"), expected);
     });
 
     test('parse title only with checked box (lower case)', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.checked_box, "foo", "");
-      expect(parser.parseTitle("[x]foo"), expected);
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.checked_box, "foo");
+      expect(parser.parseTitle("[x]", "foo"), expected);
     });
 
     test('parse title only with checked box (upper case)', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.checked_box, "foo", "");
-      expect(parser.parseTitle("[X]foo"), expected);
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.checked_box, "foo");
+      expect(parser.parseTitle("[X]", "foo"), expected);
     });
 
-    test('parse title with text after no space', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo", "+bar");
-      expect(parser.parseTitle("-foo+bar"), expected);
+    test('parse title with text after (escaped)', () {
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.dash, "foo+bar");
+      expect(parser.parseTitle('-', r'foo\+bar'), expected);
     });
 
     test('parse title with text after and space', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo", "+bar");
-      expect(parser.parseTitle("-foo +bar"), expected);
-    });
-
-    test('parse title with text before no space', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo", "+bar");
-      expect(parser.parseTitle("+bar-foo"), expected);
-    });
-
-    test('parse title with text berfore and space', () {
-      Tuple3<parser.states, String, String> expected =
-          Tuple3(parser.states.dash, "foo", "+bar");
-      expect(parser.parseTitle("+bar -foo"), expected);
+      Tuple2<parser.states, String> expected =
+          Tuple2(parser.states.dash, "foo +bar");
+      expect(parser.parseTitle('-', r'foo \+bar'), expected);
     });
   });
 
   group('Title negative tests => ', () {
     test('Raise error if the title is malformed', () {
-      expect(() => parser.parseTitle("-Task:foo"), throwsFormatException);
-    });
-
-    test('Raise error if there are 2 titles', () {
-      expect(() => parser.parseTitle("-foo -bar"), throwsFormatException);
+      expect(() => parser.parseTitle('-', "Task:foo"), throwsFormatException);
     });
 
     test('Raise error if no prefix', () {
-      expect(() => parser.parseTitle("foo"), throwsFormatException);
+      expect(() => parser.parseTitle('', "foo"), throwsFormatException);
     });
   });
 }

@@ -18,7 +18,25 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:petitparser/petitparser.dart';
 import 'package:tuple/tuple.dart';
+
+enum states { dash, box, checked_box }
+
+Map<String, states> prefToState = {
+  '-': states.dash,
+  '[ ]': states.box,
+  '[x]': states.checked_box,
+  '[X]': states.checked_box,
+};
+
+Parser startString = char('-') |
+    string('[ ]') |
+    string('[x]') |
+    string('[X]') |
+    char('@') |
+    char('+') |
+    endOfInput();
 
 class Property {
   String label;
@@ -36,8 +54,6 @@ class Property {
   @override
   int get hashCode => label.hashCode ^ value.hashCode;
 }
-
-enum states { dash, box, checked_box }
 
 class Task {
   states state;
@@ -77,8 +93,24 @@ class Task {
   int get hashCode => _gethashcode();
 }
 
-Tuple3<states, String, String> parseTitle(String task) {
-  throw UnimplementedError();
+Tuple2<states, String> parseTitle(String prefix, String title) {
+  var state = prefToState[prefix] ??
+      FormatException(
+          'Attempted to parse {${title}}. Prefix {${prefix}} is not a valid prefix.');
+  if (state is FormatException) throw state;
+
+  var hasColon = title.contains(RegExp(r':')) ^ title.contains(RegExp(r'\\:'));
+  if (hasColon)
+    throw FormatException(
+        'Attempted to parse {${title}}. unescaped \':\' was found.');
+  title = title.replaceAll(new RegExp(r'\\:'), '@');
+  title = title.replaceAll(new RegExp(r'\\@'), '@');
+  title = title.replaceAll(new RegExp(r'\\\+'), '+');
+  title = title.replaceAll(new RegExp(r'\\-'), '-');
+  title = title.replaceAll(new RegExp(r'\\\[ \]'), '[ ]');
+  title = title.replaceAll(new RegExp(r'\\\[x\]', caseSensitive: false), '[x]');
+
+  return Tuple2(state, title);
 }
 
 Tuple2<DateTime, String> parseDueDate(String task) {
@@ -94,34 +126,22 @@ Tuple2<List<String>, String> parseProperties(String task) {
 }
 
 Task parseTask(String task) {
-  Tuple2<dynamic, String> result;
+  var taskParser = ExpressionBuilder();
 
-  states state;
-  String title;
-  Property description;
-  DateTime dueDate;
-  List<Property> properties;
-  List<String> switches;
+  // define primitive
+  taskParser.group()
+    ..primitive(
+        any().starLazy(char(r'\').not() & startString).flatten().trim());
 
-  Tuple3 titleParse = parseTitle(task);
-  state = titleParse.item1;
-  title = titleParse.item2;
+  // Title parser
+  taskParser.group()
+    ..prefix(char('-'), (op, val) => parseTitle(op, val))
+    ..prefix(string('[ ]'), (op, val) => parseTitle(op, val))
+    ..prefix(string('[x]'), (op, val) => parseTitle(op, val))
+    ..prefix(string('[X]'), (op, val) => parseTitle(op, val));
 
-  result = parseDueDate(titleParse.item3);
-  dueDate = result.item1;
+  final parser = taskParser.build().end();
 
-  result = parseProperties(result.item2);
-  var descIndex =
-      result.item1.indexWhere((e) => e.label.toLowerCase() == "description");
-  description = descIndex != -1 ? result.item1.removeAt(descIndex) : null;
-  properties = result.item1;
-
-  result = parseSwitches(result.item2);
-  switches = result.item1;
-
-  return new Task(state, title,
-      description: description,
-      dueDate: dueDate,
-      properties: properties,
-      switches: switches);
+  var result = parser.parse(task);
+  return null;
 }
