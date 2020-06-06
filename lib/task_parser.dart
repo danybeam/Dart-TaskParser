@@ -93,6 +93,19 @@ class Task {
   int get hashCode => _gethashcode();
 }
 
+bool isValidDate(String input) {
+  final date = DateTime.parse(input);
+  final originalFormatString = toOriginalFormatString(date);
+  return input == originalFormatString;
+}
+
+String toOriginalFormatString(DateTime dateTime) {
+  final y = dateTime.year.toString().padLeft(4, '0');
+  final m = dateTime.month.toString().padLeft(2, '0');
+  final d = dateTime.day.toString().padLeft(2, '0');
+  return "$y$m$d";
+}
+
 Tuple2<states, String> parseTitle(String prefix, String title) {
   var state = prefToState[prefix] ??
       FormatException(
@@ -113,8 +126,16 @@ Tuple2<states, String> parseTitle(String prefix, String title) {
   return Tuple2(state, title);
 }
 
-Tuple2<DateTime, String> parseDueDate(String task) {
-  throw UnimplementedError();
+DateTime parseDueDate(String date) {
+  var segments = date.split(RegExp(r'(-|T|:)'));
+  if (segments.any((element) => element.isEmpty) || segments.length != 5)
+    throw FormatException("Missing information when parsing date {${date}}");
+  if (!isValidDate(segments[0] + segments[1] + segments[2]))
+    throw FormatException("Date {${date}} is not a valid date");
+  List<int> numbers = [0, 0, 0, 0, 0];
+  int numberPtr = 0;
+  segments.forEach((e) => numbers[numberPtr++] = int.parse(e));
+  return DateTime(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
 }
 
 Tuple2<List<String>, String> parseSwitches(String task) {
@@ -130,6 +151,18 @@ Task parseTask(String task) {
 
   // define primitive
   taskParser.group()
+    ..primitive(digit().times(4) &
+        char('\\').not() &
+        char('-') &
+        digit().times(2) &
+        char('\\').not() &
+        char('-') &
+        digit().times(2) &
+        char('T') &
+        digit().times(2) &
+        char('\\').not() &
+        char(':') &
+        digit().times(2)) // 2020-02-01T12:34
     ..primitive(
         any().starLazy(char(r'\').not() & startString).flatten().trim());
 
@@ -137,8 +170,16 @@ Task parseTask(String task) {
   taskParser.group()
     ..prefix(char('-'), (op, val) => parseTitle(op, val))
     ..prefix(string('[ ]'), (op, val) => parseTitle(op, val))
-    ..prefix(string('[x]'), (op, val) => parseTitle(op, val))
-    ..prefix(string('[X]'), (op, val) => parseTitle(op, val));
+    ..prefix(stringIgnoreCase('[x]'), (op, val) => parseTitle(op, val));
+
+  taskParser.group()
+    ..prefix(
+        char('@') &
+            stringIgnoreCase('due') &
+            char(' ').optional() &
+            stringIgnoreCase('date') &
+            char(':'),
+        (op, val) => parseDueDate(val));
 
   final parser = taskParser.build().end();
 
