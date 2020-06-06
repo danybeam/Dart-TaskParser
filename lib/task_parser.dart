@@ -142,8 +142,14 @@ Tuple2<List<String>, String> parseSwitches(String task) {
   throw UnimplementedError();
 }
 
-Tuple2<List<String>, String> parseProperties(String task) {
-  throw UnimplementedError();
+Property parseProperties(String label, String value) {
+  if (label?.length == 0 ?? true) {
+    throw FormatException("Property found with no label and value {${value}}");
+  }
+  if (value?.length == 0 ?? true) {
+    throw FormatException("Property found with no label and value {${value}}");
+  }
+  return Property(label, value);
 }
 
 Task parseTask(String task) {
@@ -152,15 +158,15 @@ Task parseTask(String task) {
   // define primitive
   taskParser.group()
     ..primitive(digit().times(4) &
-        char('\\').not() &
+        char(r'\').not() &
         char('-') &
         digit().times(2) &
-        char('\\').not() &
+        char(r'\').not() &
         char('-') &
         digit().times(2) &
         char('T') &
         digit().times(2) &
-        char('\\').not() &
+        char(r'\').not() &
         char(':') &
         digit().times(2)) // 2020-02-01T12:34
     ..primitive(
@@ -168,18 +174,30 @@ Task parseTask(String task) {
 
   // Title parser
   taskParser.group()
-    ..prefix(char('-'), (op, val) => parseTitle(op, val))
-    ..prefix(string('[ ]'), (op, val) => parseTitle(op, val))
-    ..prefix(stringIgnoreCase('[x]'), (op, val) => parseTitle(op, val));
+    ..prefix(char(r'\').not() & char('-'), (op, val) => parseTitle(op, val))
+    ..prefix(char(r'\').not() & string('[ ]'), (op, val) => parseTitle(op, val))
+    ..prefix(char(r'\').not() & stringIgnoreCase('[x]'),
+        (op, val) => parseTitle(op, val));
 
   taskParser.group()
     ..prefix(
-        char('@') &
+        char(r'\').not() &
+            char('@') &
             stringIgnoreCase('due') &
             char(' ').optional() &
             stringIgnoreCase('date') &
+            char(r'\').not() &
             char(':'),
         (op, val) => parseDueDate(val));
+
+  taskParser.group()
+    ..prefix(
+        char(r'\').not() &
+            char('@') &
+            any().starLazy(char(r'\').not() & char(':')).flatten() &
+            char(r'\').not() &
+            char(':'),
+        (op, val) => parseProperties(op[2], task));
 
   final parser = taskParser.build().end();
 
