@@ -138,8 +138,14 @@ DateTime parseDueDate(String date) {
   return DateTime(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
 }
 
-Tuple2<List<String>, String> parseSwitches(String task) {
-  throw UnimplementedError();
+String parseSwitches(String taskSwitch) {
+  if (taskSwitch?.length == 0 ?? true)
+    throw FormatException("Empty switch found in task");
+  if (taskSwitch.contains(RegExp(r':')) ^ taskSwitch.contains(RegExp(r'\\:')))
+    throw FormatException(
+        'Attempted to parse {${taskSwitch}}. unescaped \':\' was found.');
+
+  return taskSwitch;
 }
 
 Property parseProperties(String label, String value) {
@@ -155,7 +161,7 @@ Property parseProperties(String label, String value) {
 Task parseTask(String task) {
   var taskParser = ExpressionBuilder();
 
-  // define primitive
+  // define primitives
   taskParser.group()
     ..primitive(digit().times(4) &
         char(r'\').not() &
@@ -179,6 +185,7 @@ Task parseTask(String task) {
     ..prefix(char(r'\').not() & stringIgnoreCase('[x]'),
         (op, val) => parseTitle(op, val));
 
+  // Due date parser
   taskParser.group()
     ..prefix(
         char(r'\').not() &
@@ -190,6 +197,7 @@ Task parseTask(String task) {
             char(':'),
         (op, val) => parseDueDate(val));
 
+  // Property parser
   taskParser.group()
     ..prefix(
         char(r'\').not() &
@@ -199,6 +207,10 @@ Task parseTask(String task) {
             char(':'),
         (op, val) => parseProperties(op[2], task));
 
+  // switch parser
+  taskParser.group()
+    ..prefix(char(r'\').not() & char(r'+'),
+        (op, val) => parseProperties(op[2], task));
   final parser = taskParser.build().end();
 
   var result = parser.parse(task);

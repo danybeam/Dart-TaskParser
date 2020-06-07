@@ -57,7 +57,26 @@ void main() {
     test('parse 1 property alone', () {
       parser.Property expected = new parser.Property("foo", "bar");
       expect(parser.parseTask("@foo:bar"), expected);
-    });*/
+    });
+test('parse switches with text before', () {
+      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
+      expect(parser.parseSwitches('-task +foo+bar'), expected);
+    });
+
+    test('parse switches with text in the middle', () {
+      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
+      expect(parser.parseSwitches('+foo-task+bar'), expected);
+    });
+
+    test('parse switches with text in the end', () {
+      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
+      expect(parser.parseSwitches('+foo +bar -task'), expected);
+    });
+test('parse 2 switches', () {
+      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '');
+      expect(parser.parseSwitches('+foo +bar'), expected);
+    });
+    */
   });
 
   group('Parse task negative tests => ', () {
@@ -91,6 +110,9 @@ void main() {
     test('raise exception if task has repeated property', () {
       expect(() => parser.parseTask("-test @foo:bar @foo:baz"),
           throwsFormatException);
+    });
+    test('raise error if task has repeated switches', () {
+      expect(() => parser.parseTask('+foo +foo'), throwsFormatException);
     });
   });
 }
