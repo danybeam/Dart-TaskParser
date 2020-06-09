@@ -39,7 +39,7 @@ class Property {
 
 enum states { dash, box, checked_box }
 
-class Task {
+class ITask {
   states state;
   String title;
   Property description;
@@ -47,7 +47,19 @@ class Task {
   List<Property> properties;
   List<String> switches;
 
-  Task(state, title, {description, dueDate, properties, switches}) {
+  bool operator ==(covariant other) {}
+  int get hashCode => 0;
+}
+
+class BasicTask implements ITask {
+  states state;
+  String title;
+  Property description;
+  DateTime dueDate;
+  List<Property> properties;
+  List<String> switches;
+
+  BasicTask(state, title, {description, dueDate, properties, switches}) {
     this.state = state;
     this.title = title;
     this.description = description;
@@ -93,7 +105,7 @@ Tuple2<List<String>, String> parseProperties(String task) {
   throw UnimplementedError();
 }
 
-Task parseTask(String task) {
+BasicTask parseTask(String task) {
   Tuple2<dynamic, String> result;
 
   states state;
@@ -119,7 +131,7 @@ Task parseTask(String task) {
   result = parseSwitches(result.item2);
   switches = result.item1;
 
-  return new Task(state, title,
+  return new BasicTask(state, title,
       description: description,
       dueDate: dueDate,
       properties: properties,
