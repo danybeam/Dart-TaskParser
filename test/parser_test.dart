@@ -3,6 +3,20 @@ import 'package:task_parser/task_parser.dart' as parser;
 
 void main() {
   group('Parse task positive tests => ', () {
+    test('parse task with everything', () {
+      parser.Task expected = parser.Task(
+          state: parser.states.dash,
+          title: "foo",
+          dueDate: DateTime(2020, 12, 31, 12, 34),
+          description: parser.Property("description", "bar"),
+          properties: [parser.Property("baz", "buzz")],
+          switches: ["fizz"]);
+
+      expect(
+          parser.parseTask(
+              "-foo@dueDate:2020-12-31T12:34@Description:bar@baz:buzz+fizz"),
+          expected);
+    });
     /*test('parse task with only title (dash)', () {
       parser.Task expected = parser.Task(parser.states.dash, "foo");
       expect(parser.parseTask("-foo"), expected);
@@ -42,18 +56,7 @@ void main() {
       expect(parser.parseSwitches('@foo:baz @bar:baz -task'), expected);
     });
 
-    test('parse task with everything', () {
-      parser.Task expected = parser.Task(parser.states.dash, "foo",
-          dueDate: DateTime(2020, 12, 31, 12, 34),
-          description: "bar",
-          properties: [parser.Property("baz", "buzz")],
-          switches: ["fizz"]);
-
-      expect(
-          parser.parseTask(
-              "-foo@dueDate:2020-12-31T12:34@Description:bar@baz:buzz+fizz"),
-          expected);
-    });
+    
     test('parse 1 property alone', () {
       parser.Property expected = new parser.Property("foo", "bar");
       expect(parser.parseTask("@foo:bar"), expected);
@@ -88,14 +91,16 @@ test('parse 2 switches', () {
       expect(() => parser.parseTask("-foo -bar"), throwsFormatException);
     });
     test('Raise error if the value is malformed (missing value)', () {
-      expect(() => parser.parseDueDate("@DueDate"), throwsFormatException);
+      expect(() => parser.parseDueDate(parser.Task(), "@DueDate"),
+          throwsFormatException);
     });
     test('badly formated due date label act as property', () {
-      parser.Task expected = parser.Task(parser.states.dash, "foo",
+      parser.Task expected = parser.Task(
+          state: parser.states.dash,
+          title: "foo",
           properties: [parser.Property("dueate", "2020-12-31T12:34")]);
       expect(parser.parseTask("-foo@dueate:2020-12-31T12:34"), expected);
     });
-
     test('raise exception if property is not properly formated (prefix)', () {
       expect(() => parser.parseTask("+foo:bar"), throwsFormatException);
     });
