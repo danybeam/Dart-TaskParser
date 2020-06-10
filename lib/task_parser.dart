@@ -53,7 +53,11 @@ class Property {
   @override
   int get hashCode => label.hashCode ^ value.hashCode;
 
-  // TODO implemnt to string
+  @override
+  String toString() {
+    // TODO: implement toString
+    return '@' + label.toLowerCase() + ':' + value.toLowerCase();
+  }
 }
 
 class Task {
@@ -81,11 +85,19 @@ class Task {
     int hash = this.title?.hashCode ?? 1;
     hash ^= this.description?.hashCode ?? 1;
     hash ^= this.dueDate?.hashCode ?? 1;
-    for (var item in this.properties) {
-      hash ^= item?.hashCode ?? 1;
+    if (this.properties != null && this.properties.length != 0) {
+      for (var item in this.properties) {
+        hash ^= item?.hashCode ?? 1;
+      }
+    } else {
+      hash ^= 1;
     }
-    for (var item in this.switches) {
-      hash ^= item?.hashCode ?? 1;
+    if (this.switches != null && this.switches.length != 0) {
+      for (var item in this.switches) {
+        hash ^= item?.hashCode ?? 1;
+      }
+    } else {
+      hash ^= 1;
     }
     return hash;
   }
@@ -98,7 +110,51 @@ class Task {
   @override
   int get hashCode => _gethashcode();
 
-  // TODO implement to string
+  @override
+  String toString() {
+    String result = '';
+    if (this.state != null) {
+      switch (this.state) {
+        case states.dash:
+          result += '-';
+          break;
+        case states.box:
+          result += '[ ]';
+          break;
+        default:
+          result += '[x]';
+      }
+    }
+
+    if (this.title != null) {
+      result += title;
+    }
+
+    if (this.description != null) {
+      result += this.description.toString();
+    }
+
+    if (this.dueDate != null) {
+      result += '@duedate:' +
+          this
+              .dueDate
+              .toString()
+              .replaceFirst(RegExp(r' '), 'T')
+              .substring(0, 16);
+    }
+
+    if (this.properties != null && this.properties.length != 0) {
+      for (var item in this.properties) {
+        result += item.toString();
+      }
+    }
+    if (this.switches != null && this.switches.length != 0) {
+      for (var item in this.switches) {
+        result += '+' + item.toString();
+      }
+    }
+    return result;
+  }
 }
 
 bool isValidDate(String input) {
@@ -170,6 +226,9 @@ Tuple2<states, String> parseTitle(Task task, String prefix, String title) {
   title = title.replaceAll(new RegExp(r'\\\[ \]'), '[ ]');
   title = title.replaceAll(new RegExp(r'\\\[x\]', caseSensitive: false), '[x]');
 
+  task.state = state;
+  task.title = title;
+
   return Tuple2(state, title);
 }
 
@@ -222,6 +281,14 @@ Property parseProperties(Task task, String label, String value) {
   return result;
 }
 
+Property parseDescription(Task task, String value) {
+  if (task.description != null)
+    throw FormatException("Task already contained a description");
+  var result = Property('description', value);
+  task.description = result;
+  return result;
+}
+
 Task parseTask(String task) {
   var result = Task();
   var taskParser = ExpressionBuilder();
@@ -247,11 +314,11 @@ Task parseTask(String task) {
   // Title parser
   taskParser.group()
     ..prefix((char(r'\').not() & char(r'-')).flatten(),
-        (op, val) => parseTitle(result, op, val))
+        (op, val) => parseTitle(result, op, val.trim()))
     ..prefix((char(r'\').not() & string('[ ]')).flatten(),
-        (op, val) => parseTitle(result, op, val))
+        (op, val) => parseTitle(result, op, val.trim()))
     ..prefix((char(r'\').not() & stringIgnoreCase('[x]')).flatten(),
-        (op, val) => parseTitle(result, op, val));
+        (op, val) => parseTitle(result, op, val.trim()));
 
   // Property parser
   taskParser.group()
@@ -261,7 +328,7 @@ Task parseTask(String task) {
             any().starLazy(char(r'\').not() & char(r':')).flatten() &
             char(r'\').not() &
             char(r':'),
-        (op, val) => parseProperties(result, op[2], val));
+        (op, val) => parseProperties(result, op[2], val.trim()));
 
   // Due date parser
   taskParser.group()
@@ -273,12 +340,22 @@ Task parseTask(String task) {
             stringIgnoreCase('date') &
             char(r'\').not() &
             char(r':'),
-        (op, val) => parseDueDate(result, val));
+        (op, val) => parseDueDate(result, val.trim()));
+
+  // Description parser
+  taskParser.group()
+    ..prefix(
+        char(r'\').not() &
+            char(r'@') &
+            stringIgnoreCase('description') &
+            char(r'\').not() &
+            char(r':'),
+        (op, val) => parseDescription(result, val.trim()));
 
   // switch parser
   taskParser.group()
-    ..prefix(
-        char(r'\').not() & char(r'+'), (op, val) => parseSwitches(result, val));
+    ..prefix(char(r'\').not() & char(r'+'),
+        (op, val) => parseSwitches(result, val.trim()));
   final parser = taskParser.build().end();
 
   var segments = generateSegments(task);
