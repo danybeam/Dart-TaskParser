@@ -14,72 +14,78 @@ void main() {
 
       expect(
           parser.parseTask(
-              "-foo@dueDate:2020-12-31T12:34@Description:bar@baz:buzz+fizz"),
+              "-foo@Description:bar@dueDate:2020-12-31T12:34@baz:buzz+fizz"),
           expected);
     });
-    /*test('parse task with only title (dash)', () {
-      parser.Task expected = parser.Task(parser.states.dash, "foo");
+    test('parse task with only title (dash)', () {
+      parser.Task expected =
+          parser.Task(state: parser.states.dash, title: "foo");
       expect(parser.parseTask("-foo"), expected);
     });
 
     test('parse task with only title (box)', () {
-      parser.Task expected = parser.Task(parser.states.box, "foo");
+      parser.Task expected =
+          parser.Task(state: parser.states.box, title: "foo");
       expect(parser.parseTask("[ ]foo"), expected);
     });
 
     test('parse task with only title (checked box)', () {
-      parser.Task expected = parser.Task(parser.states.checked_box, "foo");
+      parser.Task expected =
+          parser.Task(state: parser.states.checked_box, title: "foo");
       expect(parser.parseTask("[x]foo"), expected);
     });
 
     test('parse properties with text before', () {
-      Tuple2<List<parser.Property>, String> expected = Tuple2([
+      parser.Task expected = parser.Task(properties: [
         new parser.Property("foo", "baz"),
         new parser.Property("bar", "baz")
-      ], '-task');
-      expect(parser.parseSwitches('-task @foo:baz@bar:baz'), expected);
+      ], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('-task @foo:baz @bar:baz'), expected);
     });
 
     test('parse properties with text in the middle', () {
-      Tuple2<List<parser.Property>, String> expected = Tuple2([
+      parser.Task expected = parser.Task(properties: [
         new parser.Property("foo", "baz"),
         new parser.Property("bar", "baz")
-      ], '-task');
-      expect(parser.parseSwitches('@foo:baz-task@bar:baz'), expected);
+      ], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('@foo:baz-task@bar:baz'), expected);
     });
 
     test('parse properties with text in the end', () {
-      Tuple2<List<parser.Property>, String> expected = Tuple2([
+      parser.Task expected = parser.Task(properties: [
         new parser.Property("foo", "baz"),
         new parser.Property("bar", "baz")
-      ], '-task');
-      expect(parser.parseSwitches('@foo:baz @bar:baz -task'), expected);
+      ], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('@foo:baz @bar:baz -task'), expected);
     });
 
-    
     test('parse 1 property alone', () {
-      parser.Property expected = new parser.Property("foo", "bar");
+      parser.Task expected =
+          new parser.Task(properties: [parser.Property("foo", "bar")]);
       expect(parser.parseTask("@foo:bar"), expected);
     });
-test('parse switches with text before', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('-task +foo+bar'), expected);
+
+    test('parse switches with text before', () {
+      parser.Task expected = parser.Task(
+          switches: ['foo', 'bar'], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('-task +foo+bar'), expected);
     });
 
     test('parse switches with text in the middle', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('+foo-task+bar'), expected);
+      parser.Task expected = parser.Task(
+          switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
+      expect(parser.parseTask('+foo-task+bar'), expected);
     });
 
     test('parse switches with text in the end', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('+foo +bar -task'), expected);
+      parser.Task expected = parser.Task(
+          switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
+      expect(parser.parseTask('+foo +bar -task'), expected);
     });
-test('parse 2 switches', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '');
-      expect(parser.parseSwitches('+foo +bar'), expected);
+    test('parse 2 switches', () {
+      parser.Task expected = parser.Task(switches: ['foo', 'bar']);
+      expect(parser.parseTask('+foo +bar'), expected);
     });
-    */
   });
 
   group('Parse task negative tests => ', () {

@@ -26,19 +26,19 @@ void main() {
   group('Due Date positive tests => ', () {
     test('parse only due date no space', () {
       DateTime expected = new DateTime(2020, 02, 01, 12, 34);
-      expect(parser.parseDueDate("2020-02-01T12:34"), expected);
+      expect(parser.parseDueDate(parser.Task(), "2020-02-01T12:34"), expected);
     });
   });
 
   group('Due Date negative tests => ', () {
     test('Raise error if the value is malformed (missing numbers)', () {
-      expect(() => parser.parseDueDate("@DueDate:2020-01T12:34"),
+      expect(() => parser.parseDueDate(parser.Task(), "@DueDate:2020-01T12:34"),
           throwsFormatException);
     });
 
     test('Raise error if value is malformed (letters in the middle)', () {
-      expect(
-          () => parser.parseDueDate("asdf-02-01T12:34"), throwsFormatException);
+      expect(() => parser.parseDueDate(parser.Task(), "asdf-02-01T12:34"),
+          throwsFormatException);
     });
   });
 }
