@@ -51,11 +51,10 @@ class Property {
   }
 
   @override
-  int get hashCode => label.hashCode ^ value.hashCode;
+  int get hashCode => label.hashCode;
 
   @override
   String toString() {
-    // TODO: implement toString
     return '@' + label.toLowerCase() + ':' + value.toLowerCase();
   }
 }
@@ -257,6 +256,10 @@ String parseSwitches(Task task, String taskSwitch) {
   if (taskSwitch.contains(RegExp(r':')) ^ taskSwitch.contains(RegExp(r'\\:')))
     throw FormatException(
         'Attempted to parse {${taskSwitch}}. unescaped \':\' was found.');
+  if (task.switches != null && task.switches.indexOf(taskSwitch) != -1) {
+    throw FormatException(
+        'Task {${task}} already contains switch {${taskSwitch}}');
+  }
   if (task.switches == null) {
     task.switches = [taskSwitch];
   } else {
@@ -273,6 +276,10 @@ Property parseProperties(Task task, String label, String value) {
     throw FormatException("Property found with no label and value {${value}}");
   }
   var result = Property(label, value);
+  if (task.properties != null && task.properties.indexOf(result) != -1) {
+    throw FormatException(
+        'Task {${task}} already contains property {${result}}');
+  }
   if (task.properties == null) {
     task.properties = [result];
   } else {
@@ -292,6 +299,7 @@ Property parseDescription(Task task, String value) {
 Task parseTask(String task) {
   var result = Task();
   var taskParser = ExpressionBuilder();
+  int segmentsLength;
   // build task on primitives (input task to function and returning the property)
   // define primitives
   taskParser.group()
@@ -313,12 +321,18 @@ Task parseTask(String task) {
 
   // Title parser
   taskParser.group()
-    ..prefix((char(r'\').not() & char(r'-')).flatten(),
-        (op, val) => parseTitle(result, op, val.trim()))
-    ..prefix((char(r'\').not() & string('[ ]')).flatten(),
-        (op, val) => parseTitle(result, op, val.trim()))
-    ..prefix((char(r'\').not() & stringIgnoreCase('[x]')).flatten(),
-        (op, val) => parseTitle(result, op, val.trim()));
+    ..prefix((char(r'\').not() & char(r'-')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    })
+    ..prefix((char(r'\').not() & string('[ ]')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    })
+    ..prefix((char(r'\').not() & stringIgnoreCase('[x]')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    });
 
   // Property parser
   taskParser.group()
@@ -327,8 +341,10 @@ Task parseTask(String task) {
             char(r'@') &
             any().starLazy(char(r'\').not() & char(r':')).flatten() &
             char(r'\').not() &
-            char(r':'),
-        (op, val) => parseProperties(result, op[2], val.trim()));
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseProperties(result, op[2], val.trim());
+    });
 
   // Due date parser
   taskParser.group()
@@ -339,8 +355,10 @@ Task parseTask(String task) {
             char(r' ').optional() &
             stringIgnoreCase('date') &
             char(r'\').not() &
-            char(r':'),
-        (op, val) => parseDueDate(result, val.trim()));
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseDueDate(result, val.trim());
+    });
 
   // Description parser
   taskParser.group()
@@ -349,18 +367,27 @@ Task parseTask(String task) {
             char(r'@') &
             stringIgnoreCase('description') &
             char(r'\').not() &
-            char(r':'),
-        (op, val) => parseDescription(result, val.trim()));
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseDescription(result, val.trim());
+    });
 
   // switch parser
   taskParser.group()
-    ..prefix(char(r'\').not() & char(r'+'),
-        (op, val) => parseSwitches(result, val.trim()));
+    ..prefix(char(r'\').not() & char(r'+'), (op, val) {
+      segmentsLength--;
+      return parseSwitches(result, val.trim());
+    });
   final parser = taskParser.build().end();
 
   var segments = generateSegments(task);
+  segmentsLength = segments.length;
   for (var segment in segments) {
     parser.parse(segment);
+  }
+
+  if (segmentsLength != 0) {
+    throw FormatException("error while parsing the task {${task}}");
   }
 
   return result;

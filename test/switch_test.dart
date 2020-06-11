@@ -19,7 +19,6 @@ For any questions contact me at daoroz94@gmail.com
 */
 
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 import 'package:task_parser/task_parser.dart' as parser;
 
 void main() {

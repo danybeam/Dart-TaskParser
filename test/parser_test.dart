@@ -131,18 +131,15 @@ void main() {
       expect(() => parser.parseTask("+foo:bar"), throwsFormatException);
     });
 
-    // TODO actually raise exception
     test('raise exception if property is not properly formated (value)', () {
       expect(() => parser.parseTask("-test @foo"), throwsFormatException);
     });
 
-    // TODO actually raise exception
     test('raise exception if task has repeated property', () {
       expect(() => parser.parseTask("-test @foo:bar @foo:baz"),
           throwsFormatException);
     });
 
-    // TODO Raise exception
     test('raise error if task has repeated switches', () {
       expect(() => parser.parseTask('+foo +foo'), throwsFormatException);
     });

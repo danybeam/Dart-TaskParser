@@ -20,7 +20,6 @@ For any questions contact me at daoroz94@gmail.com
 
 import 'package:task_parser/task_parser.dart' as parser;
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 
 void main() {
   group('Property positive tests => ', () {
