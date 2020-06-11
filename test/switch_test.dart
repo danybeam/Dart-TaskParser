@@ -1,51 +1,43 @@
+/*
+Dart implementation of the task spec sheet
+Copyright (C) 2020  Daniel Gerardo Orozco Hernandez
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https: //www.gnu.org/licenses/>.
+
+For any questions contact me at daoroz94@gmail.com
+*/
+
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 import 'package:task_parser/task_parser.dart' as parser;
 
 void main() {
   group('Switch positive tests => ', () {
     test('parse switch alone', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo'], '');
-      expect(parser.parseSwitches('+foo'), expected);
+      String expected = 'foo';
+      expect(parser.parseSwitches(parser.Task(), 'foo'), expected);
     });
 
     test('parse switch alone (2 words)', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo bar'], '');
-      expect(parser.parseSwitches('+foo bar'), expected);
-    });
-
-    test('parse 2 switches', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '');
-      expect(parser.parseSwitches('+foo +bar'), expected);
-    });
-
-    test('parse switches with text before', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('-task +foo+bar'), expected);
-    });
-
-    test('parse switches with text in the middle', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('+foo-task+bar'), expected);
-    });
-
-    test('parse switches with text in the end', () {
-      Tuple2<List<String>, String> expected = Tuple2(['foo', 'bar'], '-task');
-      expect(parser.parseSwitches('+foo +bar -task'), expected);
+      String expected = 'foo bar';
+      expect(parser.parseSwitches(parser.Task(), 'foo bar'), expected);
     });
   });
 
   group('Switch negative tests => ', () {
-    test('raise error if @', () {
-      expect(() => parser.parseSwitches('@foo'), throwsFormatException);
-    });
-
     test('raise error if label + value', () {
-      expect(() => parser.parseSwitches('+foo:bar'), throwsFormatException);
-    });
-
-    test('raise error if task has repeated switches', () {
-      expect(() => parser.parseSwitches('+foo +foo'), throwsFormatException);
+      expect(() => parser.parseSwitches(parser.Task(), 'foo:bar'),
+          throwsFormatException);
     });
   });
 }

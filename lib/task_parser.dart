@@ -18,7 +18,24 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:petitparser/petitparser.dart';
 import 'package:tuple/tuple.dart';
+
+enum states { dash, box, checked_box }
+
+Map<String, states> prefToState = {
+  '-': states.dash,
+  '[ ]': states.box,
+  '[x]': states.checked_box,
+  '[X]': states.checked_box,
+};
+
+Parser startString = (char('-', '\'-\' was not found as start string') |
+    string('[ ]', '\'-\' was not found as start string') |
+    stringIgnoreCase('[x]', '\'[x]\' was not found as start string') |
+    char('@', '\'@\' was not found as start string') |
+    char('+', '\'+\' was not found as start string') |
+    endOfInput('end of input was not found as start string'));
 
 class Property {
   String label;
@@ -34,7 +51,12 @@ class Property {
   }
 
   @override
-  int get hashCode => label.hashCode ^ value.hashCode;
+  int get hashCode => label.hashCode;
+
+  @override
+  String toString() {
+    return '@' + label.toLowerCase() + ':' + value.toLowerCase();
+  }
 }
 
 enum states { dash, box, checked_box }
@@ -73,67 +95,314 @@ class BasicTask implements ITask {
   }
 
   int _gethashcode() {
-    int hash = this.title.hashCode;
-    hash ^= this.description.hashCode;
-    hash ^= this.dueDate.hashCode;
-    for (var item in this.properties) {
-      hash ^= item.hashCode;
+    int hash = this.title?.hashCode ?? 1;
+    hash ^= this.description?.hashCode ?? 1;
+    hash ^= this.dueDate?.hashCode ?? 1;
+    if (this.properties != null && this.properties.length != 0) {
+      for (var item in this.properties) {
+        hash ^= item?.hashCode ?? 1;
+      }
+    } else {
+      hash ^= 1;
     }
-    for (var item in this.switches) {
-      hash ^= item.hashCode;
+    if (this.switches != null && this.switches.length != 0) {
+      for (var item in this.switches) {
+        hash ^= item?.hashCode ?? 1;
+      }
+    } else {
+      hash ^= 1;
     }
     return hash;
   }
 
+  bool hasTitle() {
+    return (this.state != null ||
+        (this.title != null && this.title.length != 0));
+  }
+
   @override
   int get hashCode => _gethashcode();
+
+  @override
+  String toString() {
+    String result = '';
+    if (this.state != null) {
+      switch (this.state) {
+        case states.dash:
+          result += '-';
+          break;
+        case states.box:
+          result += '[ ]';
+          break;
+        default:
+          result += '[x]';
+      }
+    }
+
+    if (this.title != null) {
+      result += title;
+    }
+
+    if (this.description != null) {
+      result += this.description.toString();
+    }
+
+    if (this.dueDate != null) {
+      result += '@duedate:' +
+          this
+              .dueDate
+              .toString()
+              .replaceFirst(RegExp(r' '), 'T')
+              .substring(0, 16);
+    }
+
+    if (this.properties != null && this.properties.length != 0) {
+      for (var item in this.properties) {
+        result += item.toString();
+      }
+    }
+    if (this.switches != null && this.switches.length != 0) {
+      for (var item in this.switches) {
+        result += '+' + item.toString();
+      }
+    }
+    return result;
+  }
 }
 
-Tuple3<states, String, String> parseTitle(String task) {
-  throw UnimplementedError();
+bool isValidDate(String input) {
+  final date = DateTime.parse(input);
+  final originalFormatString = toOriginalFormatString(date);
+  return input == originalFormatString;
 }
 
-Tuple2<DateTime, String> parseDueDate(String task) {
-  throw UnimplementedError();
+String toOriginalFormatString(DateTime dateTime) {
+  final y = dateTime.year.toString().padLeft(4, '0');
+  final m = dateTime.month.toString().padLeft(2, '0');
+  final d = dateTime.day.toString().padLeft(2, '0');
+  return "$y$m$d";
 }
 
-Tuple2<List<String>, String> parseSwitches(String task) {
-  throw UnimplementedError();
+List<String> generateSegments(String task) {
+  var result = List<String>();
+  String placeholder = task[0];
+
+  for (var i = 1; i < task.length; i++) {
+    switch (task[i]) {
+      case r'\':
+        placeholder += task[i++];
+        placeholder += task[i];
+        break;
+      case r'@':
+        result.add(placeholder);
+        placeholder = '';
+        placeholder += task[i];
+        break;
+      case r'+':
+        result.add(placeholder);
+        placeholder = '';
+        placeholder += task[i];
+        break;
+      case r'-':
+        if (task[i + 1].contains(RegExp(r'\d'))) {
+          placeholder += task[i];
+          break;
+        }
+        result.add(placeholder);
+        placeholder = '';
+        placeholder += task[i];
+        break;
+      default:
+        placeholder += task[i];
+    }
+  }
+  if (placeholder.length != 0) result.add(placeholder);
+  return result;
 }
 
-Tuple2<List<String>, String> parseProperties(String task) {
-  throw UnimplementedError();
+Tuple2<states, String> parseTitle(Task task, String prefix, String title) {
+  if (task.hasTitle())
+    throw FormatException('Task {${task}} already has a title');
+  var state = prefToState[prefix] ??
+      FormatException(
+          'Attempted to parse {${title}}. Prefix {${prefix}} is not a valid prefix.');
+  if (state is FormatException) throw state;
+
+  var hasColon = title.contains(RegExp(r':')) ^ title.contains(RegExp(r'\\:'));
+  if (hasColon)
+    throw FormatException(
+        'Attempted to parse {${title}}. unescaped \':\' was found.');
+  title = title.replaceAll(new RegExp(r'\\:'), '@');
+  title = title.replaceAll(new RegExp(r'\\@'), '@');
+  title = title.replaceAll(new RegExp(r'\\\+'), '+');
+  title = title.replaceAll(new RegExp(r'\\-'), '-');
+  title = title.replaceAll(new RegExp(r'\\\[ \]'), '[ ]');
+  title = title.replaceAll(new RegExp(r'\\\[x\]', caseSensitive: false), '[x]');
+
+  task.state = state;
+  task.title = title;
+
+  return Tuple2(state, title);
 }
 
-BasicTask parseTask(String task) {
-  Tuple2<dynamic, String> result;
+DateTime parseDueDate(Task task, String date) {
+  if (task.dueDate != null) {
+    throw FormatException(
+        "Task {${task}} already contains the due date {${task.dueDate}}");
+  }
+  var segments = date.split(RegExp(r'(-|T|:)'));
+  if (segments.any((element) => element.isEmpty) || segments.length != 5)
+    throw FormatException("Missing information when parsing date {${date}}");
+  if (!isValidDate(segments[0] + segments[1] + segments[2]))
+    throw FormatException("Date {${date}} is not a valid date");
+  List<int> numbers = [0, 0, 0, 0, 0];
+  int numberPtr = 0;
+  segments.forEach((e) => numbers[numberPtr++] = int.parse(e));
+  var result =
+      DateTime(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4]);
+  task.dueDate = result;
+  return result;
+}
 
-  states state;
-  String title;
-  Property description;
-  DateTime dueDate;
-  List<Property> properties;
-  List<String> switches;
+String parseSwitches(Task task, String taskSwitch) {
+  if (taskSwitch?.length == 0 ?? true)
+    throw FormatException("Empty switch found in task");
+  if (taskSwitch.contains(RegExp(r':')) ^ taskSwitch.contains(RegExp(r'\\:')))
+    throw FormatException(
+        'Attempted to parse {${taskSwitch}}. unescaped \':\' was found.');
+  if (task.switches != null && task.switches.indexOf(taskSwitch) != -1) {
+    throw FormatException(
+        'Task {${task}} already contains switch {${taskSwitch}}');
+  }
+  if (task.switches == null) {
+    task.switches = [taskSwitch];
+  } else {
+    task.switches.add(taskSwitch);
+  }
+  return taskSwitch;
+}
 
-  Tuple3 titleParse = parseTitle(task);
-  state = titleParse.item1;
-  title = titleParse.item2;
+Property parseProperties(Task task, String label, String value) {
+  if (label?.length == 0 ?? true) {
+    throw FormatException("Property found with no label and value {${value}}");
+  }
+  if (value?.length == 0 ?? true) {
+    throw FormatException("Property found with no label and value {${value}}");
+  }
+  var result = Property(label, value);
+  if (task.properties != null && task.properties.indexOf(result) != -1) {
+    throw FormatException(
+        'Task {${task}} already contains property {${result}}');
+  }
+  if (task.properties == null) {
+    task.properties = [result];
+  } else {
+    task.properties.add(result);
+  }
+  return result;
+}
 
-  result = parseDueDate(titleParse.item3);
-  dueDate = result.item1;
+Property parseDescription(Task task, String value) {
+  if (task.description != null)
+    throw FormatException("Task already contained a description");
+  var result = Property('description', value);
+  task.description = result;
+  return result;
+}
 
-  result = parseProperties(result.item2);
-  var descIndex =
-      result.item1.indexWhere((e) => e.label.toLowerCase() == "description");
-  description = descIndex != -1 ? result.item1.removeAt(descIndex) : null;
-  properties = result.item1;
+  var result = Task();
+  var taskParser = ExpressionBuilder();
+  int segmentsLength;
+  // build task on primitives (input task to function and returning the property)
+  // define primitives
+  taskParser.group()
+    ..primitive((digit().times(4) &
+            char(r'\').not() &
+            char('-') &
+            digit().times(2) &
+            char(r'\').not() &
+            char('-') &
+            digit().times(2) &
+            char('T') &
+            digit().times(2) &
+            char(r'\').not() &
+            char(':') &
+            digit().times(2))
+        .flatten()) // 2020-02-01T12:34
+    ..primitive(
+        any().starLazy(char(r'\').not() & startString).flatten().trim());
+ITask parseTask(String task) {
 
-  result = parseSwitches(result.item2);
-  switches = result.item1;
+  // Title parser
+  taskParser.group()
+    ..prefix((char(r'\').not() & char(r'-')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    })
+    ..prefix((char(r'\').not() & string('[ ]')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    })
+    ..prefix((char(r'\').not() & stringIgnoreCase('[x]')).flatten(), (op, val) {
+      segmentsLength--;
+      return parseTitle(result, op, val.trim());
+    });
 
-  return new BasicTask(state, title,
-      description: description,
-      dueDate: dueDate,
-      properties: properties,
-      switches: switches);
+  // Property parser
+  taskParser.group()
+    ..prefix(
+        char(r'\').not() &
+            char(r'@') &
+            any().starLazy(char(r'\').not() & char(r':')).flatten() &
+            char(r'\').not() &
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseProperties(result, op[2], val.trim());
+    });
+
+  // Due date parser
+  taskParser.group()
+    ..prefix(
+        char(r'\').not() &
+            char(r'@') &
+            stringIgnoreCase('due') &
+            char(r' ').optional() &
+            stringIgnoreCase('date') &
+            char(r'\').not() &
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseDueDate(result, val.trim());
+    });
+
+  // Description parser
+  taskParser.group()
+    ..prefix(
+        char(r'\').not() &
+            char(r'@') &
+            stringIgnoreCase('description') &
+            char(r'\').not() &
+            char(r':'), (op, val) {
+      segmentsLength--;
+      return parseDescription(result, val.trim());
+    });
+
+  // switch parser
+  taskParser.group()
+    ..prefix(char(r'\').not() & char(r'+'), (op, val) {
+      segmentsLength--;
+      return parseSwitches(result, val.trim());
+    });
+  final parser = taskParser.build().end();
+
+  var segments = generateSegments(task);
+  segmentsLength = segments.length;
+  for (var segment in segments) {
+    parser.parse(segment);
+  }
+
+  if (segmentsLength != 0) {
+    throw FormatException("error while parsing the task {${task}}");
+  }
+
+  return result;
 }
