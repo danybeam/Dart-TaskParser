@@ -59,8 +59,6 @@ class Property {
   }
 }
 
-enum states { dash, box, checked_box }
-
 class ITask {
   states state;
   String title;
@@ -71,6 +69,8 @@ class ITask {
 
   bool operator ==(covariant other) {}
   int get hashCode => 0;
+  int _gethashcode() {}
+  bool hasTitle() {}
 }
 
 class BasicTask implements ITask {
@@ -81,7 +81,7 @@ class BasicTask implements ITask {
   List<Property> properties;
   List<String> switches;
 
-  BasicTask(state, title, {description, dueDate, properties, switches}) {
+  BasicTask({state, title, description, dueDate, properties, switches}) {
     this.state = state;
     this.title = title;
     this.description = description;
@@ -220,7 +220,7 @@ List<String> generateSegments(String task) {
   return result;
 }
 
-Tuple2<states, String> parseTitle(Task task, String prefix, String title) {
+Tuple2<states, String> parseTitle(ITask task, String prefix, String title) {
   if (task.hasTitle())
     throw FormatException('Task {${task}} already has a title');
   var state = prefToState[prefix] ??
@@ -245,7 +245,7 @@ Tuple2<states, String> parseTitle(Task task, String prefix, String title) {
   return Tuple2(state, title);
 }
 
-DateTime parseDueDate(Task task, String date) {
+DateTime parseDueDate(ITask task, String date) {
   if (task.dueDate != null) {
     throw FormatException(
         "Task {${task}} already contains the due date {${task.dueDate}}");
@@ -264,7 +264,7 @@ DateTime parseDueDate(Task task, String date) {
   return result;
 }
 
-String parseSwitches(Task task, String taskSwitch) {
+String parseSwitches(ITask task, String taskSwitch) {
   if (taskSwitch?.length == 0 ?? true)
     throw FormatException("Empty switch found in task");
   if (taskSwitch.contains(RegExp(r':')) ^ taskSwitch.contains(RegExp(r'\\:')))
@@ -282,7 +282,7 @@ String parseSwitches(Task task, String taskSwitch) {
   return taskSwitch;
 }
 
-Property parseProperties(Task task, String label, String value) {
+Property parseProperties(ITask task, String label, String value) {
   if (label?.length == 0 ?? true) {
     throw FormatException("Property found with no label and value {${value}}");
   }
@@ -302,7 +302,7 @@ Property parseProperties(Task task, String label, String value) {
   return result;
 }
 
-Property parseDescription(Task task, String value) {
+Property parseDescription(ITask task, String value) {
   if (task.description != null)
     throw FormatException("Task already contained a description");
   var result = Property('description', value);
@@ -310,7 +310,8 @@ Property parseDescription(Task task, String value) {
   return result;
 }
 
-  var result = Task();
+ITask parseTask(String task) {
+  var result = BasicTask();
   var taskParser = ExpressionBuilder();
   int segmentsLength;
   // build task on primitives (input task to function and returning the property)
@@ -331,7 +332,6 @@ Property parseDescription(Task task, String value) {
         .flatten()) // 2020-02-01T12:34
     ..primitive(
         any().starLazy(char(r'\').not() & startString).flatten().trim());
-ITask parseTask(String task) {
 
   // Title parser
   taskParser.group()

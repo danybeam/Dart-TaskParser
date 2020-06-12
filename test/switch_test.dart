@@ -25,18 +25,18 @@ void main() {
   group('Switch positive tests => ', () {
     test('parse switch alone', () {
       String expected = 'foo';
-      expect(parser.parseSwitches(parser.Task(), 'foo'), expected);
+      expect(parser.parseSwitches(parser.BasicTask(), 'foo'), expected);
     });
 
     test('parse switch alone (2 words)', () {
       String expected = 'foo bar';
-      expect(parser.parseSwitches(parser.Task(), 'foo bar'), expected);
+      expect(parser.parseSwitches(parser.BasicTask(), 'foo bar'), expected);
     });
   });
 
   group('Switch negative tests => ', () {
     test('raise error if label + value', () {
-      expect(() => parser.parseSwitches(parser.Task(), 'foo:bar'),
+      expect(() => parser.parseSwitches(parser.BasicTask(), 'foo:bar'),
           throwsFormatException);
     });
   });

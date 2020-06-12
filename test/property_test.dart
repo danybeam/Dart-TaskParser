@@ -25,18 +25,19 @@ void main() {
   group('Property positive tests => ', () {
     test('parse 1 property alone', () {
       parser.Property expected = parser.Property("foo", "bar");
-      expect(parser.parseProperties(parser.Task(), "foo", "bar"), expected);
+      expect(
+          parser.parseProperties(parser.BasicTask(), "foo", "bar"), expected);
     });
   });
 
   group('Property negative tests => ', () {
     test('raise exception if property is not properly formated (prefix)', () {
-      expect(() => parser.parseProperties(parser.Task(), "", "bar"),
+      expect(() => parser.parseProperties(parser.BasicTask(), "", "bar"),
           throwsFormatException);
     });
 
     test('raise exception if property is not properly formated (value)', () {
-      expect(() => parser.parseProperties(parser.Task(), "foo", ""),
+      expect(() => parser.parseProperties(parser.BasicTask(), "foo", ""),
           throwsFormatException);
     });
   });

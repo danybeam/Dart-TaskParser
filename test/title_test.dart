@@ -27,53 +27,54 @@ void main() {
     test('parse title only with dash', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.dash, "foo");
-      expect(parser.parseTitle(parser.Task(), "-", "foo"), expected);
+      expect(parser.parseTitle(parser.BasicTask(), "-", "foo"), expected);
     });
 
     test('parse title with space', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.dash, "foo bar");
-      expect(parser.parseTitle(parser.Task(), "-", "foo bar"), expected);
+      expect(parser.parseTitle(parser.BasicTask(), "-", "foo bar"), expected);
     });
 
     test('parse title only with box', () {
       Tuple2<parser.states, String> expected = Tuple2(parser.states.box, "foo");
-      expect(parser.parseTitle(parser.Task(), "[ ]", "foo"), expected);
+      expect(parser.parseTitle(parser.BasicTask(), "[ ]", "foo"), expected);
     });
 
     test('parse title only with checked box (lower case)', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.checked_box, "foo");
-      expect(parser.parseTitle(parser.Task(), "[x]", "foo"), expected);
+      expect(parser.parseTitle(parser.BasicTask(), "[x]", "foo"), expected);
     });
 
     test('parse title only with checked box (upper case)', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.checked_box, "foo");
-      expect(parser.parseTitle(parser.Task(), "[X]", "foo"), expected);
+      expect(parser.parseTitle(parser.BasicTask(), "[X]", "foo"), expected);
     });
 
     test('parse title with text after (escaped)', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.dash, "foo+bar");
-      expect(parser.parseTitle(parser.Task(), '-', r'foo\+bar'), expected);
+      expect(parser.parseTitle(parser.BasicTask(), '-', r'foo\+bar'), expected);
     });
 
     test('parse title with text after and space', () {
       Tuple2<parser.states, String> expected =
           Tuple2(parser.states.dash, "foo +bar");
-      expect(parser.parseTitle(parser.Task(), '-', r'foo \+bar'), expected);
+      expect(
+          parser.parseTitle(parser.BasicTask(), '-', r'foo \+bar'), expected);
     });
   });
 
   group('Title negative tests => ', () {
     test('Raise error if the title is malformed', () {
-      expect(() => parser.parseTitle(parser.Task(), '-', "Task:foo"),
+      expect(() => parser.parseTitle(parser.BasicTask(), '-', "Task:foo"),
           throwsFormatException);
     });
 
     test('Raise error if no prefix', () {
-      expect(() => parser.parseTitle(parser.Task(), '', "foo"),
+      expect(() => parser.parseTitle(parser.BasicTask(), '', "foo"),
           throwsFormatException);
     });
   });
