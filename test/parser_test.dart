@@ -54,59 +54,48 @@ void main() {
           parser.BasicTask(state: parser.states.checked_box, title: "foo");
       expect(parser.parseTask("[x]foo"), expected);
     });
+    test('parse properties with text in the middle', () {
+      parser.ITask expected = parser.BasicTask(properties: [
+        new parser.Property("foo", "baz"),
+        new parser.Property("bar", "baz")
+      ], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('@foo:baz-task@bar:baz'), expected);
+    });
 
-    test('parse task with everything', () {
+    test('parse properties with text in the end', () {
+      parser.ITask expected = parser.BasicTask(properties: [
+        new parser.Property("foo", "baz"),
+        new parser.Property("bar", "baz")
+      ], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('@foo:baz @bar:baz -task'), expected);
+    });
+
+    test('parse 1 property alone', () {
+      parser.ITask expected =
+          new parser.BasicTask(properties: [parser.Property("foo", "bar")]);
+      expect(parser.parseTask("@foo:bar"), expected);
+    });
+
+    test('parse switches with text before', () {
       parser.ITask expected = parser.BasicTask(
-          state: parser.states.dash,
-          title: "foo",
-          dueDate: DateTime(2020, 12, 31, 12, 34),
-          description: "bar",
-          properties: [parser.Property("baz", "buzz")],
-          switches: ["fizz"]);
+          switches: ['foo', 'bar'], state: parser.states.dash, title: 'task');
+      expect(parser.parseTask('-task +foo+bar'), expected);
+    });
 
-      test('parse properties with text in the middle', () {
-        parser.ITask expected = parser.BasicTask(properties: [
-          new parser.Property("foo", "baz"),
-          new parser.Property("bar", "baz")
-        ], state: parser.states.dash, title: 'task');
-        expect(parser.parseTask('@foo:baz-task@bar:baz'), expected);
-      });
+    test('parse switches with text in the middle', () {
+      parser.ITask expected = parser.BasicTask(
+          switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
+      expect(parser.parseTask('+foo-task+bar'), expected);
+    });
 
-      test('parse properties with text in the end', () {
-        parser.ITask expected = parser.BasicTask(properties: [
-          new parser.Property("foo", "baz"),
-          new parser.Property("bar", "baz")
-        ], state: parser.states.dash, title: 'task');
-        expect(parser.parseTask('@foo:baz @bar:baz -task'), expected);
-      });
-
-      test('parse 1 property alone', () {
-        parser.ITask expected =
-            new parser.BasicTask(properties: [parser.Property("foo", "bar")]);
-        expect(parser.parseTask("@foo:bar"), expected);
-      });
-
-      test('parse switches with text before', () {
-        parser.ITask expected = parser.BasicTask(
-            switches: ['foo', 'bar'], state: parser.states.dash, title: 'task');
-        expect(parser.parseTask('-task +foo+bar'), expected);
-      });
-
-      test('parse switches with text in the middle', () {
-        parser.ITask expected = parser.BasicTask(
-            switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
-        expect(parser.parseTask('+foo-task+bar'), expected);
-      });
-
-      test('parse switches with text in the end', () {
-        parser.ITask expected = parser.BasicTask(
-            switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
-        expect(parser.parseTask('+foo +bar -task'), expected);
-      });
-      test('parse 2 switches', () {
-        parser.ITask expected = parser.BasicTask(switches: ['foo', 'bar']);
-        expect(parser.parseTask('+foo +bar'), expected);
-      });
+    test('parse switches with text in the end', () {
+      parser.ITask expected = parser.BasicTask(
+          switches: ['foo', 'bar'], title: 'task', state: parser.states.dash);
+      expect(parser.parseTask('+foo +bar -task'), expected);
+    });
+    test('parse 2 switches', () {
+      parser.ITask expected = parser.BasicTask(switches: ['foo', 'bar']);
+      expect(parser.parseTask('+foo +bar'), expected);
     });
   });
 
