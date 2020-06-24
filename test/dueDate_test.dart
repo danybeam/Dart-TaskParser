@@ -19,27 +19,25 @@ For any questions contact me at daoroz94@gmail.com
 */
 
 import 'package:test/test.dart';
-import 'package:task_parser/task_parser.dart' as parser;
+import 'package:task_parser/task_parser.dart';
+import 'package:task_parser/src/tools/elements_tools.dart';
 
 void main() {
   group('Due Date positive tests => ', () {
     test('parse only due date no space', () {
       DateTime expected = new DateTime(2020, 02, 01, 12, 34);
-      expect(parser.parseDueDate(parser.BasicTask(), "2020-02-01T12:34"),
-          expected);
+      expect(insertDueDate(BasicTask(), "2020-02-01T12:34"), expected);
     });
   });
 
   group('Due Date negative tests => ', () {
     test('Raise error if the value is malformed (missing numbers)', () {
-      expect(
-          () =>
-              parser.parseDueDate(parser.BasicTask(), "@DueDate:2020-01T12:34"),
+      expect(() => insertDueDate(BasicTask(), "@DueDate:2020-01T12:34"),
           throwsFormatException);
     });
 
     test('Raise error if value is malformed (letters in the middle)', () {
-      expect(() => parser.parseDueDate(parser.BasicTask(), "asdf-02-01T12:34"),
+      expect(() => insertDueDate(BasicTask(), "asdf-02-01T12:34"),
           throwsFormatException);
     });
   });

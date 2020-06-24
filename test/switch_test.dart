@@ -18,6 +18,7 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:task_parser/src/tools/elements_tools.dart';
 import 'package:test/test.dart';
 import 'package:task_parser/task_parser.dart' as parser;
 
@@ -25,18 +26,18 @@ void main() {
   group('Switch positive tests => ', () {
     test('parse switch alone', () {
       String expected = 'foo';
-      expect(parser.parseSwitches(parser.BasicTask(), 'foo'), expected);
+      expect(insertSwitches(parser.BasicTask(), 'foo'), expected);
     });
 
     test('parse switch alone (2 words)', () {
       String expected = 'foo bar';
-      expect(parser.parseSwitches(parser.BasicTask(), 'foo bar'), expected);
+      expect(insertSwitches(parser.BasicTask(), 'foo bar'), expected);
     });
   });
 
   group('Switch negative tests => ', () {
     test('raise error if label + value', () {
-      expect(() => parser.parseSwitches(parser.BasicTask(), 'foo:bar'),
+      expect(() => insertSwitches(parser.BasicTask(), 'foo:bar'),
           throwsFormatException);
     });
   });

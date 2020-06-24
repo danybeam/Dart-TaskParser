@@ -18,6 +18,7 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:task_parser/src/tools/elements_tools.dart';
 import 'package:task_parser/task_parser.dart' as parser;
 import 'package:test/test.dart';
 
@@ -25,19 +26,18 @@ void main() {
   group('Property positive tests => ', () {
     test('parse 1 property alone', () {
       parser.Property expected = parser.Property("foo", "bar");
-      expect(
-          parser.parseProperties(parser.BasicTask(), "foo", "bar"), expected);
+      expect(insertProperties(parser.BasicTask(), "foo", "bar"), expected);
     });
   });
 
   group('Property negative tests => ', () {
     test('raise exception if property is not properly formated (prefix)', () {
-      expect(() => parser.parseProperties(parser.BasicTask(), "", "bar"),
+      expect(() => insertProperties(parser.BasicTask(), "", "bar"),
           throwsFormatException);
     });
 
     test('raise exception if property is not properly formated (value)', () {
-      expect(() => parser.parseProperties(parser.BasicTask(), "foo", ""),
+      expect(() => insertProperties(parser.BasicTask(), "foo", ""),
           throwsFormatException);
     });
   });
