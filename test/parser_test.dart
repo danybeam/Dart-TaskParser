@@ -18,6 +18,7 @@ along with this program.  If not, see <https: //www.gnu.org/licenses/>.
 For any questions contact me at daoroz94@gmail.com
 */
 
+import 'package:task_parser/src/tools/elements_tools.dart';
 import 'package:test/test.dart';
 import 'package:task_parser/task_parser.dart' as parser;
 
@@ -108,7 +109,7 @@ void main() {
       expect(() => parser.parseTask("-foo -bar"), throwsFormatException);
     });
     test('Raise error if the value is malformed (missing value)', () {
-      expect(() => parser.parseDueDate(parser.BasicTask(), "@DueDate"),
+      expect(() => insertDueDate(parser.BasicTask(), "@DueDate"),
           throwsFormatException);
     });
     test('badly formated due date label act as property', () {
